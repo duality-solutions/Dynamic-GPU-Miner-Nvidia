@@ -1,0 +1,1 @@
+# Dynamic-GPU-Miner-Nvidia
