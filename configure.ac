@@ -1,4 +1,4 @@
-AC_INIT([ccminer-dyn], [1.0], [], [ccminer-dyn], [https://github.com/duality-solutions/Dynamic-GPU-Miner-Nvidia])
+AC_INIT([ccminer-dyn], [1.0.0], [], [ccminer-dyn], [https://github.com/duality-solutions/Dynamic-GPU-Miner-Nvidia])
 AC_PREREQ([2.59c])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_SRCDIR([ccminer.cpp])
