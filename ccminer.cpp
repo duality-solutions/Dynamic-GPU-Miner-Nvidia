@@ -305,6 +305,7 @@ Options:\n\
                         string names of your cards like gtx780ti or gt640#2\n\
                         (matching 2nd gt640 in the PC)\n\
   -i  --intensity=N[,N] GPU intensity 1.0-40.0 (default: auto) \n\
+                        More intensity means more GPU memory usage \n\
                         Decimals are allowed for fine tuning \n\
       --cuda-schedule   Set device threads scheduling mode (default: auto)\n\
   -f, --diff-factor     Divide difficulty by this factor (default 1.0) \n\
