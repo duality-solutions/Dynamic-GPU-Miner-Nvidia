@@ -7,6 +7,7 @@ autom4te.cache
 .ptp-sync*
 ._.DS_Store
 .dirstamp
+*.cache
 
 Makefile
 Makefile.in
