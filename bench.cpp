@@ -89,7 +89,6 @@ void algo_free_all(int thr_id)
 	free_skunk(thr_id);
 	free_sha256d(thr_id);
 	free_sha256t(thr_id);
-	free_sia(thr_id);
 	free_sib(thr_id);
 	free_s3(thr_id);
 	free_vanilla(thr_id);

@@ -42,7 +42,6 @@
 
 #include "miner.h"
 #include "algos.h"
-#include "sia/sia-rpc.h"
 #include "crypto/xmr-rpc.h"
 #include "equi/equihash.h"
 
@@ -275,7 +274,6 @@ Options:\n\
             qubit       Qubit\n\
             sha256d     SHA256d (bitcoin)\n\
             sha256t     SHA256 x3\n\
-            sia         SIA (Blake2B)\n\
             sib         Sibcoin (X11+Streebog)\n\
             scrypt      Scrypt\n\
             scrypt-jane Scrypt-jane Chacha\n\
@@ -665,7 +663,6 @@ static void calc_network_diff(struct work *work)
     uint32_t nbits = have_longpoll ? work->data[18] : swab32(work->data[18]);
     if (opt_algo == ALGO_LBRY) nbits = swab32(work->data[26]);
     if (opt_algo == ALGO_DECRED) nbits = work->data[29];
-    if (opt_algo == ALGO_SIA) nbits = work->data[11]; // unsure if correct
     if (opt_algo == ALGO_EQUIHASH) {
         net_diff = equi_network_diff(work);
         return;
@@ -976,10 +973,6 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
             le32enc(&ntime, work->data[25]);
             //le32enc(&nonce, work->data[27]);
             break;
-        case ALGO_SIA:
-            be32enc(&ntime, work->data[10]);
-            be32enc(&nonce, work->data[8]);
-            break;
         case ALGO_ZR5:
             check_dups = true;
             be32enc(&ntime, work->data[17]);
@@ -1011,9 +1004,6 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 
         if (opt_algo == ALGO_DECRED) {
             xnonce2str = bin2hex((const uchar*)&work->data[36], stratum.xnonce1_size);
-        } else if (opt_algo == ALGO_SIA) {
-            uint16_t high_nonce = swab32(work->data[9]) >> 16;
-            xnonce2str = bin2hex((unsigned char*)(&high_nonce), 2);
         } else {
             xnonce2str = bin2hex(work->xnonce2, work->xnonce2_len);
         }
@@ -1066,9 +1056,6 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
         }
         else if (opt_algo == ALGO_DECRED) {
             data_size = 192; adata_sz = 180/4;
-        }
-        else if (opt_algo == ALGO_SIA) {
-            return sia_submit(curl, pool, work);
         }
 
         if (opt_algo != ALGO_HEAVY && opt_algo != ALGO_MJOLLNIR) {
@@ -1245,18 +1232,6 @@ static bool get_upstream_work(CURL *curl, struct work *work)
 
     gettimeofday(&tv_start, NULL);
 
-    if (opt_algo == ALGO_SIA) {
-        char *sia_header = sia_getheader(curl, pool);
-        if (sia_header) {
-            rc = sia_work_decode(sia_header, work);
-            free(sia_header);
-        }
-        gettimeofday(&tv_end, NULL);
-        if (have_stratum || unlikely(work->pooln != cur_pooln)) {
-            return rc;
-        }
-        return rc;
-    }
 
     if (opt_debug_threads)
         applog(LOG_DEBUG, "%s: want_longpoll=%d have_longpoll=%d",
@@ -1558,10 +1533,7 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
     /* Generate merkle root */
     switch (opt_algo) {
         case ALGO_DECRED:
-        case ALGO_EQUIHASH:
-        case ALGO_SIA:
-            // getwork over stratum, no merkle to generate
-            break;
+		case ALGO_EQUIHASH:
 #ifdef WITH_HEAVY_ALGO
         case ALGO_HEAVY:
         case ALGO_MJOLLNIR:
@@ -1642,18 +1614,6 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
         work->data[25] = le32dec(sctx->job.ntime);
         work->data[26] = le32dec(sctx->job.nbits);
         work->data[28] = 0x80000000;
-    } else if (opt_algo == ALGO_SIA) {
-        uint32_t extra = 0;
-        memcpy(&extra, &sctx->job.coinbase[32], 2);
-        for (i = 0; i < 8; i++) // reversed hash
-            work->data[i] = ((uint32_t*)sctx->job.prevhash)[7-i];
-        work->data[8] = 0; // nonce
-        work->data[9] = swab32(extra) | ((rand() << 8) & 0xffff);
-        work->data[10] = be32dec(sctx->job.ntime);
-        work->data[11] = be32dec(sctx->job.nbits);
-        memcpy(&work->data[12], sctx->job.coinbase, 32); // merkle_root
-        work->data[20] = 0x80000000;
-        if (opt_debug) applog_hex(work->data, 80);
     } else {
         //work->data 9-16 -> 8 chunks of merkel root
         for (i = 0; i < 8; i++)
@@ -1687,7 +1647,7 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 
     pthread_mutex_unlock(&stratum_work_lock);
 
-    if (opt_debug && opt_algo != ALGO_DECRED && opt_algo != ALGO_EQUIHASH && opt_algo != ALGO_SIA) {
+    if (opt_debug && opt_algo != ALGO_DECRED && opt_algo != ALGO_EQUIHASH) {
         uint32_t utm = work->data[17];
         if (opt_algo != ALGO_ZR5) utm = swab32(utm);
         char *tm = atime2str(utm - sctx->srvtime_diff);
@@ -1894,10 +1854,7 @@ static void *miner_thread(void *userdata)
         int wcmpoft = 0;
 
         if (opt_algo == ALGO_LBRY) wcmplen = 108;
-        else if (opt_algo == ALGO_SIA) {
-            wcmpoft = (32+16)/4;
-            wcmplen = 32;
-        }
+        
 
         uint32_t *nonceptr = (uint32_t*) (((char*)work.data) + wcmplen);
 
@@ -1933,9 +1890,7 @@ static void *miner_thread(void *userdata)
             extrajob |= work_done;
 
             regen = (nonceptr[0] >= end_nonce);
-            if (opt_algo == ALGO_SIA) {
-                regen = ((nonceptr[1] & 0xFF00) >= 0xF000);
-            }
+            
             regen = regen || extrajob;
 
             if (regen) {
@@ -2049,18 +2004,6 @@ static void *miner_thread(void *userdata)
             //applog_hex(&work.data[27], 32);
         } else if (opt_algo == ALGO_WILDKECCAK) {
             //nonceptr[1] += 1;
-        } else if (opt_algo == ALGO_SIA) {
-            // suprnova job_id check without data/target/height change...
-            if (have_stratum && strcmp(work.job_id, g_work.job_id)) {
-                pthread_mutex_unlock(&g_work_lock);
-                work_done = true;
-                continue;
-            }
-            nonceptr[1] += opt_n_threads;
-            nonceptr[1] |= thr_id;
-            // range max
-            nonceptr[0] = 0;
-            end_nonce = UINT32_MAX;
         } else if (opt_benchmark) {
             // randomize work
             nonceptr[-1] += 1;
@@ -2084,8 +2027,7 @@ static void *miner_thread(void *userdata)
         loopcnt++;
 
         // prevent gpu scans before a job is received
-        if (opt_algo == ALGO_SIA) nodata_check_oft = 7; // no stratum version
-        else if (opt_algo == ALGO_DECRED) nodata_check_oft = 4; // testnet ver is 0
+        if (opt_algo == ALGO_DECRED) nodata_check_oft = 4; // testnet ver is 0
         else nodata_check_oft = 0;
         if (have_stratum && work.data[nodata_check_oft] == 0 && !opt_benchmark) {
             sleep(1);
@@ -2243,7 +2185,6 @@ static void *miner_thread(void *userdata)
             case ALGO_KECCAKC:
             case ALGO_LBRY:
             case ALGO_LUFFA:
-            case ALGO_SIA:
             case ALGO_SKEIN:
             case ALGO_SKEIN2:
             case ALGO_TRIBUS:
@@ -2472,9 +2413,6 @@ static void *miner_thread(void *userdata)
         case ALGO_SHA256T:
             rc = scanhash_sha256t(thr_id, &work, max_nonce, &hashes_done);
             break;
-        case ALGO_SIA:
-            rc = scanhash_sia(thr_id, &work, max_nonce, &hashes_done);
-            break;
         case ALGO_SIB:
             rc = scanhash_sib(thr_id, &work, max_nonce, &hashes_done);
             break;
@@ -2625,7 +2563,7 @@ static void *miner_thread(void *userdata)
         }
 
         // only required to debug purpose
-        if (opt_debug && check_dups && opt_algo != ALGO_DECRED && opt_algo != ALGO_EQUIHASH && opt_algo != ALGO_SIA)
+        if (opt_debug && check_dups && opt_algo != ALGO_DECRED && opt_algo != ALGO_EQUIHASH)
             hashlog_remember_scan_range(&work);
 
         /* output */
@@ -2739,12 +2677,9 @@ wait_lp_url:
     // to detect pool switch during loop
     switchn = pool_switch_count;
 
-    if (opt_algo == ALGO_SIA) {
-        goto out;
-    }
 
     /* full URL */
-    else if (strstr(hdr_path, "://")) {
+    if (strstr(hdr_path, "://")) {
         lp_url = hdr_path;
         hdr_path = NULL;
     }
@@ -2782,18 +2717,7 @@ longpoll_retry:
         if (switchn != pool_switch_count)
             goto need_reinit;
 
-        if (opt_algo == ALGO_SIA) {
-            char *sia_header = sia_getheader(curl, pool);
-            if (sia_header) {
-                pthread_mutex_lock(&g_work_lock);
-                if (sia_work_decode(sia_header, &g_work)) {
-                    g_work_time = time(NULL);
-                }
-                free(sia_header);
-                pthread_mutex_unlock(&g_work_lock);
-            }
-            continue;
-        }
+       
 
         val = json_rpc_longpoll(curl, lp_url, pool, rpc_req, &err);
         if (have_stratum || switchn != pool_switch_count) {
@@ -3998,7 +3922,7 @@ int main(int argc, char *argv[])
     cur_pooln = pool_get_first_valid(0);
     pool_switch(-1, cur_pooln);
 
-    if (opt_algo == ALGO_DECRED || opt_algo == ALGO_SIA) {
+    if (opt_algo == ALGO_DECRED) {
         allow_gbt = false;
         allow_mininginfo = false;
     }

@@ -94,9 +94,6 @@
     <Filter Include="Source Files\CUDA\sha256">
       <UniqueIdentifier>{86a896c0-1688-4854-98e3-285d166069a3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\sia">
-      <UniqueIdentifier>{86a896c0-1688-4854-98e0-285d166069a3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\crypto">
       <UniqueIdentifier>{fea0fce3-c0fe-42f7-aa37-0cbba10b008a}</UniqueIdentifier>
     </Filter>
@@ -115,8 +112,23 @@
     <Filter Include="Source Files\CUDA\tribus">
       <UniqueIdentifier>{1e548d79-c217-4203-989a-a592fe2b2de3}</UniqueIdentifier>
     </Filter>
-        <Filter Include="Source Files\CUDA\x12">
+    <Filter Include="Source Files\CUDA\x12">
       <UniqueIdentifier>{xde48d89-fx12-1323-129a-b592fe2b2de3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\argon2d">
+      <UniqueIdentifier>{735d31a1-05bf-4e57-8a16-05fd8564dee4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\argon2d">
+      <UniqueIdentifier>{92b95e5c-fda1-4549-85cd-6903583680ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\argon2d\argon2ref">
+      <UniqueIdentifier>{82267434-2787-4657-809f-00118e98bb68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\argon2d\argon2ref">
+      <UniqueIdentifier>{06ad968c-d19e-47e2-bad5-50b434821ae4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\argon2d\argon2ref\blake2">
+      <UniqueIdentifier>{a115f28c-6c23-4a64-929a-00d513255e55}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -315,9 +327,6 @@
     <ClCompile Include="nvsettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sia\sia-rpc.cpp">
-      <Filter>Source Files\sia</Filter>
-    </ClCompile>
     <ClCompile Include="crypto\xmr-rpc.cpp">
       <Filter>Source Files\crypto</Filter>
     </ClCompile>
@@ -354,6 +363,22 @@
     <ClCompile Include="equi\blake2\blake2bx.cpp">
       <Filter>Source Files\equi</Filter>
     </ClCompile>
+    <ClCompile Include="argon2d\argon2ref\argon2.c">
+      <Filter>Source Files\argon2d\argon2ref</Filter>
+    </ClCompile>
+    <ClCompile Include="argon2d\argon2ref\core.c">
+      <Filter>Source Files\argon2d\argon2ref</Filter>
+    </ClCompile>
+    <ClCompile Include="argon2d\argon2ref\encoding.c">
+      <Filter>Source Files\argon2d\argon2ref</Filter>
+    </ClCompile>
+    <ClCompile Include="argon2d\argon2ref\opt.c">
+      <Filter>Source Files\argon2d\argon2ref</Filter>
+    </ClCompile>
+    <ClCompile Include="argon2d\argon2ref\thread.c">
+      <Filter>Source Files\argon2d\argon2ref</Filter>
+    </ClCompile>
+    <ClCompile Include="argon2d\argon2ref\blake2\blake2b.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="algos.h">
@@ -560,9 +585,6 @@
     <ClInclude Include="x11\cuda_x11_simd512_sm2.cuh">
       <Filter>Source Files\CUDA\x11</Filter>
     </ClInclude>
-    <ClInclude Include="sia\sia-rpc.h">
-      <Filter>Source Files\sia</Filter>
-    </ClInclude>
     <ClInclude Include="crypto\xmr-rpc.h">
       <Filter>Source Files\crypto</Filter>
     </ClInclude>
@@ -604,6 +626,36 @@
     </ClInclude>
     <ClInclude Include="x16\cuda_x16.h">
       <Filter>Header Files\CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2d_kernel.h">
+      <Filter>Source Files\argon2d</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\cudaexception.h">
+      <Filter>Source Files\argon2d</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2ref\argon2.h">
+      <Filter>Header Files\argon2d\argon2ref</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2ref\blake2\blake2.h">
+      <Filter>Header Files\argon2d\argon2ref</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2ref\blake2\blake2-impl.h">
+      <Filter>Header Files\argon2d\argon2ref</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2ref\blake2\blakma-round-opt.h">
+      <Filter>Header Files\argon2d\argon2ref</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2ref\blake2\blakma-round-ref.h">
+      <Filter>Header Files\argon2d\argon2ref</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2ref\core.h">
+      <Filter>Header Files\argon2d\argon2ref</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2ref\encoding.h">
+      <Filter>Header Files\argon2d\argon2ref</Filter>
+    </ClInclude>
+    <ClInclude Include="argon2d\argon2ref\thread.h">
+      <Filter>Header Files\argon2d\argon2ref</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -955,9 +1007,6 @@
     <CudaCompile Include="sha256\sha256t.cu">
       <Filter>Source Files\CUDA\sha256</Filter>
     </CudaCompile>
-    <CudaCompile Include="sia\sia.cu">
-      <Filter>Source Files\sia</Filter>
-    </CudaCompile>
     <CudaCompile Include="crypto\cryptolight.cu">
       <Filter>Source Files\CUDA\xmr</Filter>
     </CudaCompile>
@@ -1002,6 +1051,15 @@
     </CudaCompile>
     <CudaCompile Include="x16\x16s.cu">
       <Filter>Source Files\CUDA\x16</Filter>
+    </CudaCompile>
+    <CudaCompile Include="argon2d\argon2d.cu">
+      <Filter>Source Files\argon2d</Filter>
+    </CudaCompile>
+    <CudaCompile Include="argon2d\argon2d_fill.cu">
+      <Filter>Source Files\argon2d</Filter>
+    </CudaCompile>
+    <CudaCompile Include="argon2d\blake2b_kernels.cu">
+      <Filter>Source Files\argon2d</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

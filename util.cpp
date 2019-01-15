@@ -2306,9 +2306,6 @@ void print_hash_tests(void)
 	sha256t_hash(&hash[0], &buf[0]);
 	printpfx("sha256t", hash);
 
-	blake2b_hash(&hash[0], &buf[0]);
-	printpfx("sia", hash);
-
 	sibhash(&hash[0], &buf[0]);
 	printpfx("sib", hash);
 
