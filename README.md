@@ -1,27 +1,60 @@
-# ccminer
+ccminer-dyn Dynamic Nvidia GPU miner
+========================
 
-Based on Christian Buchner's &amp; Christian H.'s CUDA project, no more active on github since 2014.
+This fork is only meant to be used to mine Dynamic (DYN) with Argon2d algorithm.
 
-Check the [README.txt](README.txt) for the additions
+releases: https://github.com/duality-solutions/Dynamic-GPU-Miner-Nvidia/releases
 
-BTC donation address: 1AJdfCpLWPNoAMDfHF1wD5y8VgKSSTHxPo (tpruvot)
+git tree: https://github.com/duality-solutions/Dynamic-GPU-Miner-Nvidia
 
-A part of the recent algos were originally written by [djm34](https://github.com/djm34) and [alexis78](https://github.com/alexis78)
+Donation addresses
+-------------------
 
-This variant was tested and built on Linux (ubuntu server 14.04, 16.04, Fedora 22 to 25)
-It is also built for Windows 7 to 10 with VStudio 2013, to stay compatible with Windows 7 and Vista.
+Please consider supporting this project by donating to these addresses (EhssanD):
 
-Note that the x86 releases are generally faster than x64 ones on Windows, but that tend to change with the recent drivers.
+	BTC  : 15h2QmsRwwwEdNNC6HbYHJU9mpbLrjUdDK
 
-The recommended CUDA Toolkit version was the [6.5.19](http://developer.download.nvidia.com/compute/cuda/6_5/rel/installers/cuda_6.5.19_windows_general_64.exe), but some light algos could be faster with the version 7.5 and 8.0 (like lbry, decred and skein).
+  	DYN  : DKPnTs1s71DtesAvvLMchtsj4gRFxphW55
 
-About source code dependencies
-------------------------------
+Based on Christian Buchner's &amp; Christian H.'s CUDA project and tpruvot@github.
+
+
+Building on windows
+-------------------
+
+Required: msvc2015 and cuda 10.x
+Dependencies for windows are included in compat directory, using a different version of msvc will most likely require to recompile those libraries.
+
+In order to build ccminer, choose "Release" and "x64" (this version won't work with win32)
+Then click "generate"
+
+Building on Linux (tested on Ubuntu 16.04)
+------------------------------------------
+
+A developpement environnement is required together with curl, jansson and openssl
+
+
+	* sudo apt-get update && sudo apt-get -y dist-upgrade
+	* sudo apt-get -y install gcc g++ build-essential automake linux-headers-$(uname -r) git gawk libcurl4-openssl-dev libjansson-dev xorg libc++-dev libgmp-dev python-dev
+
+	* Installing CUDA 10.0 and compatible drivers from nvidia website and not from ubuntu package is usually easier
+	
+	* Compiling ccminner:
+
+	./autogen.sh
+	./configure
+	./make
+
+
+About source code dependencies for windows
+------------------------------------------
 
 This project requires some libraries to be built :
 
 - OpenSSL (prebuilt for win)
+
 - Curl (prebuilt for win)
+
 - pthreads (prebuilt for win)
 
 The tree now contains recent prebuilt openssl and curl .lib for both x86 and x64 platforms (windows).
@@ -30,7 +63,16 @@ To rebuild them, you need to clone this repository and its submodules :
     git clone https://github.com/peters/curl-for-windows.git compat/curl-for-windows
 
 
-Compile on Linux
-----------------
+Sample command line
+----------------------------------------
 
-Please see [INSTALL](https://github.com/tpruvot/ccminer/blob/linux/INSTALL) file or [project Wiki](https://github.com/tpruvot/ccminer/wiki/Compatibility)
+ccminer -a argon2d -o stratum+tcp://server:port -u walletaddress -p c=DYN
+
+You can also use --intensity/-i (1-40) to increase gpu memory utilization.
+
+
+
+
+
+
+

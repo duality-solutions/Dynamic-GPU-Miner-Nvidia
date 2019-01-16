@@ -1,5 +1,5 @@
 
-ccminer 2.2.5 (Apr 2018)             "x12, x16r and x16s algos"
+ccminer-dyn Dynamic AMD GPU miner
 ---------------------------------------------------------------
 
 ***************************************************************
@@ -10,12 +10,10 @@ tpruvot@github:
   BTC  : 1AJdfCpLWPNoAMDfHF1wD5y8VgKSSTHxPo
   DCR  : DsUCcACGcyP8McNMRXQwbtpDxaVUYLDQDeU
 
-DJM34:
-  BTC donation address: 1NENYmxwZGHsKFmyjTc5WferTn5VTFb7Ze
-
-cbuchner v1.2:
-  LTC donation address: LKS1WDKGED647msBQfLBHV3Ls8sveGncnm
-  BTC donation address: 16hJF5mceSojnTD3ZTUDqdRhDyPJzoRakM
+EhssanD:
+  BTC  : 15h2QmsRwwwEdNNC6HbYHJU9mpbLrjUdDK
+  DYN  : DKPnTs1s71DtesAvvLMchtsj4gRFxphW55
+  
 
 ***************************************************************
 
@@ -23,6 +21,7 @@ cbuchner v1.2:
 
 This is a CUDA accelerated mining application which handle :
 
+Dynamic (argon2d)
 Decred (Blake256 14-rounds - 180 bytes)
 HeavyCoin & MjollnirCoin
 FugueCoin
@@ -73,6 +72,7 @@ This code is based on the pooler cpuminer and inherits
 its command line interface and options.
 
   -a, --algo=ALGO       specify the algorithm to use
+                          argon2d     use to mine Dynamic
                           bastion     use to mine Joincoin
                           bitcore     use to mine Bitcore's Timetravel10
                           blake       use to mine Saffroncoin (Blake256)
@@ -111,7 +111,6 @@ its command line interface and options.
                           scrypt-jane use to mine Chacha coins like Cache and Ultracoin
                           s3          use to mine 1coin (ONE)
                           sha256t     use to mine OneCoin (OC)
-                          sia         use to mine SIA
                           sib         use to mine Sibcoin
                           skein       use to mine Skeincoin
                           skein2      use to mine Woodcoin
@@ -138,7 +137,8 @@ its command line interface and options.
                         Alternatively give string names of your card like
                         gtx780ti or gt640#2 (matching 2nd gt640 in the PC).
 
-  -i, --intensity=N[,N] GPU threads per call 8-25 (2^N + F, default: 0=auto)
+  -i, --intensity=N[,N] GPU threads per call 1-40 (default: 0=auto)
+                        More intensity means more memory utilization
                         Decimals and multiple values are allowed for fine tuning
       --cuda-schedule   Set device threads scheduling mode (default: auto)
   -f, --diff-factor     Divide difficulty by this factor (default 1.0)
@@ -222,30 +222,8 @@ Wildkeccak specific:
 >>> Examples <<<
 
 
-Example for Heavycoin Mining on heavycoinpool.com with a single gpu in your system
-    ccminer -t 1 -a heavy -o stratum+tcp://stratum01.heavycoinpool.com:5333 -u <<username.worker>> -p <<workerpassword>> -v 8
-
-
-Example for Heavycoin Mining on hvc.1gh.com with a dual gpu in your system
-    ccminer -t 2 -a heavy -o stratum+tcp://hvcpool.1gh.com:5333/ -u <<WALLET>> -p x -v 8
-
-
-Example for Fuguecoin solo-mining with 4 gpu's in your system and a Fuguecoin-wallet running on localhost
-    ccminer -q -s 1 -t 4 -a fugue256 -o http://localhost:9089/ -u <<myusername>> -p <<mypassword>>
-
-
-Example for Fuguecoin pool mining on dwarfpool.com with all your GPUs
-    ccminer -q -a fugue256 -o stratum+tcp://erebor.dwarfpool.com:3340/ -u YOURWALLETADDRESS.1 -p YOUREMAILADDRESS
-
-
-Example for Groestlcoin solo mining
-    ccminer -q -s 1 -a groestl -o http://127.0.0.1:1441/ -u USERNAME -p PASSWORD
-
-Example for Boolberry
-    ccminer -a wildkeccak -o stratum+tcp://bbr.suprnova.cc:7777 -u tpruvot.donate -p x -k http://bbr.suprnova.cc/scratchpad.bin -l 64x360
-
-Example for Scrypt-N (2048) on Nicehash
-    ccminer -a scrypt:10 -o stratum+tcp://stratum.nicehash.com:3335 -u 3EujYFcoBzWvpUEvbe3obEG95mBuU88QBD -p x
+Example for Dynamic Mining on mininpatriot.com with a single gpu in your system
+    ccminer -t 1 -a argon2d -o stratum+tcp://mine.miningpatriot.com:4239 -u walletaddress -p c=DYN
 
 For solo-mining you typically use -o http://127.0.0.1:xxxx where xxxx represents
 the rpcport number specified in your wallet's .conf file and you have to pass the same username
@@ -281,308 +259,7 @@ so we can more efficiently implement new algorithms using the latest hardware
 features.
 
 >>> RELEASE HISTORY <<<
-  Apr. 02nd 2018  v2.2.5
-                  New x16r algo for Raven
-                  New x16s algo for Pigeon and Eden
-                  New x12 algo for Galaxycash
-                  Equihash (SIMT) sync issues for the Volta generation
-
-  Jan. 04th 2018  v2.2.4
-                  Improve lyra2v2
-                  Higher keccak default intensity
-                  Drop SM 2.x support by default, for CUDA 9 and more recent
-
-  Dec. 04th 2017  v2.2.3
-                  Polytimos Algo
-                  Handle keccakc variant (with refreshed sha256d merkle)
-                  Optimised keccak for SM5+, based on alexis improvements
-
-  Oct. 09th 2017  v2.2.2
-                  Import and clean the hsr algo (x13 + custom hash)
-                  Import and optimise phi algo from LuxCoin repository
-                  Improve sib algo too for maxwell and pascal cards
-                  Small fix to handle more than 9 cards on linux (-d 10+)
-                  Attempt to free equihash memory "properly"
-                  --submit-stale parameter for supernova pool (which change diff too fast)
-
-  Sep. 01st 2017  v2.2.1
-                  Improve tribus algo on recent cards (up to +10%)
-
-  Aug. 13th 2017  v2.2
-                  New skunk algo, using the heavy streebog algorithm
-                  Enhance tribus algo (+10%)
-                  equihash protocol enhancement on yiimp.ccminer.org and zpool.ca
-
-  June 16th 2017  v2.1-tribus
-                  Interface equihash algo with djeZo solver (from nheqminer 0.5c)
-                  New api parameters (and multicast announces for local networks)
-                  New tribus algo
-
-  May. 14th 2017  v2.0
-                  Handle cryptonight, wildkeccak and cryptonight-lite
-                  Add a serie of new algos: timetravel, bastion, hmq1725, sha256t
-                  Import lyra2z from djm34 work...
-                  Rework the common skein512 (used in most algos except skein ;)
-                  Upgrade whirlpool algo with alexis version (2x faster)
-                  Store the share diff of second nonce(s) in most algos
-                  Hardware monitoring thread to get more accurate power readings
-                  Small changes for the quiet mode & max-log-rate to reduce logs
-                  Add bitcore and a compatible jha algo
-
-  Dec. 21th 2016  v1.8.4
-                  Improve streebog based algos, veltor and sib (from alexis work)
-                  Blake2s greetly improved (3x), thanks to alexis too...
-
-  Sep. 28th 2016  v1.8.3
-                  show intensity on startup for each cards
-                  show-diff is now used by default, use --hide-diff if not wanted
-
-  Sep. 22th 2016  v1.8.2
-                  lbry improvements by Alexis Provos
-                  Prevent Windows hibernate while mining
-                  veltor algo (basic implementation)
-
-  Aug. 10th 2016  v1.8.1
-                  SIA Blake2-B Algo (getwork over stratum for Suprnova)
-                  SIA Nanopool RPC (getwork over http)
-                  Update also the older lyra2 with Nanashi version
-
-  July 20th 2016  v1.8.0
-                  Pascal support with cuda 8
-                  lbry new multi sha / ripemd algo (LBC)
-                  x11evo algo (XRE)
-                  Lyra2v2, Neoscrypt and Decred improvements
-                  Enhance windows NVAPI clock and power limits
-                  Led support for mining/shares activity on windows
-
-  May  18th 2016  v1.7.6
-                  Decred vote support
-                  X17 cleanup and improvement
-                  Add mining.ping stratum method and handle unknown methods
-                  Implement a pool stats/benchmark mode (-p stats on yiimp)
-                  Add --shares-limit parameter, can be used for benchmarks
-
-  Mar. 13th 2016  v1.7.5
-                  Blake2S Algo (NEVA/OXEN)
-
-  Feb. 28th 2016  v1.7.4 (1.7.3 was a preview, not official)
-                  Decred simplified stratum (getwork over stratum)
-                  Vanilla kernel by MrMad
-                  Drop/Disable WhirlpoolX
-
-  Feb. 11th 2016  v1.7.2
-                  Decred Algo (longpoll only)
-                  Blake256 improvements/cleanup
-
-  Jan. 26th 2016  v1.7.1
-                  Implement sib algo (X11 + Russian Streebog-512/GOST)
-                  Whirlpool speed x2 with the midstate precompute
-                  Small bug fixes about device ids mapping (and vendor names)
-                  Add Vanilla algo (Blake256 8-rounds - double sha256)
-
-  Nov. 06th 2015  v1.7
-                  Improve old devices compatibility (x11, lyra2v2, quark, qubit...)
-                  Add windows support for SM 2.1 and drop SM 3.5 (x86)
-                  Improve lyra2 (v1/v2) cuda implementations
-                  Improve most common algos on SM5+ with sp blake kernel
-                  Restore whirlpool algo (and whirlcoin variant)
-                  Prepare algo/pool switch ability, trivial method
-                  Add --benchmark alone to run a benchmark for all algos
-                  Add --cuda-schedule parameter
-                  Add --show-diff parameter, which display shares diff,
-                    and is able to detect real solved blocks on pools.
-
-  Aug. 28th 2015  v1.6.6
-                  Allow to load remote config with curl (-c http://...)
-                  Add Lyra2REv2 algo (Vertcoin/Zoom)
-                  Restore WhirlpoolX algo (VNL)
-                  Drop Animecoin support
-                  Add bmw (Midnight) algo
-
-  July 06th 2015  v1.6.5-C11
-                  Nvml api power limits
-                  Add chaincoin c11 algo (used by Flaxscript too)
-                  Remove pluck algo
-
-  June 23th 2015  v1.6.5
-                  Handle Ziftrcoin PoK solo mining
-                  Basic compatibility with CUDA 7.0 (generally slower hashrate)
-                  Show gpus vendor names on linux (windows test branch is pciutils)
-                  Remove -v and -m short params specific to heavycoin
-                  Add --diff-multiplier (-m) and rename --diff to --diff-factor (-f)
-                  First steps to handle nvml application clocks and P0 on the GTX9xx
-                  Various improvements on multipool and cmdline parameters
-                  Optimize a bit qubit, deep, luffa, x11 and quark algos
-
-  May 26th 2015   v1.6.4
-                  Implement multi-pool support (failover and time rotate)
-                    try "ccminer -c pools.conf" to test the sample config
-                  Update the API to allow remote pool switching and pool stats
-                  Auto bind the api port to the first available when using default
-                  Try to compute network difficulty on pools too (for most algos)
-                  Drop Whirlpool and whirpoolx algos, no more used...
-
-  May 15th 2015   v1.6.3
-                  Import and adapt Neoscrypt from djm34 work (SM 5+ only)
-                  Conditional mining options based on gpu temp, network diff and rate
-                  background option implementation for windows too
-                  "Multithreaded" devices (-d 0,0) intensity and stats changes
-                  SM5+ Optimisation of skein based on sp/klaus method (+20%)
-
-  Apr. 21th 2015  v1.6.2
-                  Import Scrypt, Scrypt:N and Scrypt-jane from Cudaminer
-                  Add the --time-limit command line parameter
-
-  Apr. 14th 2015  v1.6.1
-                  Add the Double Skein Algo for Woodcoin
-                  Skein/Skein2 SM 3.0 devices support
-
-  Mar. 27th 2015  v1.6.0
-                  Add the ZR5 Algo for Ziftcoin
-                  Implement Skeincoin algo (skein + sha)
-                  Import pluck (djm34) and whirlpoolx (alexis78) algos
-                  Hashrate units based on hashing rate values (Hs/kHs/MHs/GHs)
-                  Default config file (also help to debug without command line)
-                  Various small fixes
-
-  Feb. 11th 2015  v1.5.3
-                  Fix anime algo
-                  Allow a default config file in user or ccminer folder
-                  SM 2.1 windows binary (lyra2 and blake/blakecoin for the moment)
-
-  Jan. 24th 2015  v1.5.2
-                  Allow per device intensity, example: -i 20,19.5
-                  Add process CPU priority and affinity mask parameters
-                  Intelligent duplicate shares check feature (enabled if needed)
-                  api: Fan RPM (windows), Cuda threads count, linux kernel ver.
-                  More X11 optimisations from sp and KlausT
-                  SM 3.0 enhancements
-
-  Dec. 16th 2014  v1.5.1
-                  Add lyra2RE algo for Vertcoin based on djm34/vtc code
-                  Multiple shares support (2 for the moment)
-                  X11 optimisations (From klaust and sp-hash)
-                  HTML5 WebSocket api compatibility (see api/websocket.htm)
-                  Solo mode height checks with getblocktemplate rpc calls
-
-  Nov. 27th 2014  v1.5.0
-                  Upgrade compat jansson to 2.6 (for windows)
-                  Add pool mining.set_extranonce support
-                  Allow intermediate intensity with decimals
-                  Update prebuilt x86 openssl lib to 1.0.1i
-                  Fix heavy algo on linux (broken since 1.4)
-                  Some internal changes to use the C++ compiler
-                  New API 1.2 with some new commands (read only)
-                  Add some of sp x11/x15 optimisations (and tsiv x13)
-
-  Nov. 15th 2014  v1.4.9
-                  Support of nvml and nvapi(windows) to monitor gpus
-                  Fix (again) displayed hashrate for multi gpus systems
-                    Average is now made by card (30 scans of the card)
-                  Final API v1.1 (new fields + histo command)
-                  Add support of telnet queries "telnet 127.0.0.1 4068"
-                  add histo api command to get performance debug details
-                  Add a rig sample php ui using json wrapper (php)
-                  Restore quark/jackpot previous speed (differently)
-
-  Nov. 12th 2014  v1.4.8
-                  Add a basic API and a sample php json wrapper
-                  Add statsavg (def 20) and api-bind parameters
-
-  Nov. 11th 2014  v1.4.7
-                  Average hashrate (based on the 20 last scans)
-                  Rewrite blake algo
-                  Add the -i (gpu threads/intensity parameter)
-                  Add some X11 optimisations based on sp_ commits
-                  Fix quark reported hashrate and benchmark mode for some algos
-                  Enhance json config file param (int/float/false) (-c config.json)
-                  Update windows prebuilt curl to 7.38.0
-
-  Oct. 26th 2014  v1.4.6
-                  Add S3 algo reusing existing code (onecoin)
-                  Small X11 (simd512) enhancement
-
-  Oct. 20th 2014  v1.4.5
-                  Add keccak algo from djm34 repo (maxcoin)
-                  Curl 7.35 and OpenSSL are now included in the binary (and win tree)
-                  Enhance windows terminal support (--help was broken)
-
-  Sep. 27th 2014  v1.4.4
-                  First SM 5.2 Release (GTX 970 & 980)
-                  CUDA Runtime included in binary
-                  Colors enabled by default
-
-  Sep. 10th 2014  v1.4.3
-                  Add algos from djm34 repo (deep, doom, qubit)
-                  Goalcoin seems to be dead, not imported.
-                  Create also the pentablake algo (5x Blake 512)
-
-  Sept  6th 2014  Almost twice the speed on blake256 algos with the "midstate" cache
-
-  Sep.  1st 2014  add X17, optimized x15 and whirl
-                  add blake (256 variant)
-                  color support on Windows,
-                  remove some dll dependencies (pthreads, msvcp)
-
-  Aug. 18th 2014  add X14, X15, Whirl, and Fresh algos,
-                  also add colors and nvprof cmd line support
-
-  June 15th 2014  add X13 and Diamond Groestl support.
-                  Thanks to tsiv and to Bombadil for the contributions!
-
-  June 14th 2014  released Killer Groestl quad version which I deem
-                  sufficiently hard to port over to AMD. It isn't
-                  the fastest option for Compute 3.5 and 5.0 cards,
-                  but it is still much faster than the table based
-                  versions.
-
-  May 10th 2014   added X11, but without the bells & whistles
-                  (no killer Groestl, SIMD hash quite slow still)
-
-  May 6th 2014    this adds the quark and animecoin algorithms.
-
-  May 3rd 2014    add the MjollnirCoin hash algorithm for the upcomin
-                  MjollnirCoin relaunch.
-
-                  Add the -f (--diff) option to adjust the difficulty
-                  e.g. for the erebor Dwarfpool myr-gr SaffronCoin pool.
-                  Use -f 256 there.
-
-  May 1st 2014    adapt the Jackpot algorithms to changes made by the
-                  coin developers. We keep our unique nVidia advantage
-                  because we have a way to break up the divergence.
-                  NOTE: Jackpot Hash now requires Compute 3.0 or later.
-
-  April, 27 2014  this release adds Myriad-Groestl and Jackpot Coin.
-                  we apply an optimization to Jackpot that turns this
-                  into a Keccak-only CUDA coin ;) Jackpot is tested with
-                  solo--mining only at the moment.
-
-  March, 27 2014  Heavycoin exchange rates soar, and as a result this coin
-                  gets some love: We greatly optimized the Hefty1 kernel
-                  for speed. Expect some hefty gains, especially on 750Ti's!
-
-                  By popular demand, we added the -d option as known from
-                  cudaminer.
-
-                  different compute capability builds are now provided until
-                  we figure out how to pack everything into a single executable
-                  in a Windows build.
-
-  March, 24 2014  fixed Groestl pool support
-
-                  went back to Compute 1.x for cuda_hefty1.cu kernel by
-                  default after numerous reports of ccminer v0.2/v0.3
-                  not working with HeavyCoin for some people.
-
-  March, 23 2014  added Groestlcoin support. stratum status unknown
-                  (the only pool is currently down for fixing issues)
-
-  March, 21 2014  use of shared memory in Fugue256 kernel boosts hash rates
-                  on Fermi and Maxwell devices. Kepler may suffer slightly
-                  (3-5%)
-
-                  Fixed Stratum for Fuguecoin. Tested on dwarfpool.
+  
 
   March, 18 2014  initial release.
 
@@ -597,6 +274,8 @@ djm34, tsiv, sp and klausT for cuda algos implementation and optimisation
 
 Tanguy Pruvot : 750Ti tuning, blake, colors, zr5, skein, general code cleanup
                 API monitoring, linux Config/Makefile and vstudio libs...
+
+Ehsan Dalvand : argon2d algorithm
 
 and also many thanks to anyone else who contributed to the original
 cpuminer application (Jeff Garzik, pooler), it's original HVC-fork
